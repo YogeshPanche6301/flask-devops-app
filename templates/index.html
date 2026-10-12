@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Project Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand"><span class="brand-icon">D</span> DevFlow</div>
+        <p class="nav-label">WORKSPACE</p>
+        <a class="nav-link active" href="/">▦ &nbsp; Overview</a>
+        <div class="sidebar-note">
+            <span class="status-dot"></span> System operational
+            <p>Dockerized Flask App</p>
+        </div>
+        <div class="sidebar-footer">DEVFLOW <span>v1.0.0</span></div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">WORKSPACE / OVERVIEW</p>
+                <h1>Project dashboard</h1>
+                <p class="subtitle">Plan your work. Track your progress.</p>
+            </div>
+            <span class="live-badge"><span class="status-dot"></span> All systems normal</span>
+        </header>
+
+        <section class="stats">
+            <article class="stat-card">
+                <p>Total tasks</p>
+                <h2>{{ total }}</h2>
+                <span class="stat-foot">Across your workspace</span>
+            </article>
+            <article class="stat-card">
+                <p>Pending</p>
+                <h2>{{ pending }}</h2>
+                <span class="stat-foot">Still in progress</span>
+            </article>
+            <article class="stat-card">
+                <p>Completed</p>
+                <h2>{{ completed }}</h2>
+                <span class="stat-foot">Tasks finished</span>
+            </article>
+            <article class="stat-card progress-card">
+                <p>Completion rate</p>
+                <h2>{{ progress }}<small>%</small></h2>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: {{ progress }}%"></div>
+                </div>
+            </article>
+        </section>
+
+        <section class="content-grid">
+            <div class="panel task-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Task board</h3>
+                        <p>Manage your daily development work</p>
+                    </div>
+                    <span class="count-badge">{{ total }} tasks</span>
+                </div>
+
+                <form action="{{ url_for('add_task') }}" method="POST" class="task-form">
+                    <input type="text" name="title" maxlength="120"
+                           placeholder="What needs to get done?" required>
+                    <select name="priority" aria-label="Task priority">
+                        <option value="Low">Low priority</option>
+                        <option value="Medium" selected>Medium priority</option>
+                        <option value="High">High priority</option>
+                    </select>
+                    <button type="submit" class="primary-btn">+ Add task</button>
+                </form>
+
+                <div class="task-list">
+                    {% for task in tasks %}
+                    <article class="task-item">
+                        <form action="{{ url_for('toggle_task', task_id=task.id) }}"
+                              method="POST">
+                            <button class="check-btn {{ 'checked' if task.status == 'Completed' else '' }}"
+                                    type="submit"
+                                    aria-label="Toggle task completion">
+                                {{ '✓' if task.status == 'Completed' else '' }}
+                            </button>
+                        </form>
+
+                        <div class="task-info">
+                            <p class="task-title {{ 'is-complete' if task.status == 'Completed' else '' }}">
+                                {{ task.title }}
+                            </p>
+                            <div class="task-meta">
+                                <span class="priority {{ task.priority|lower }}">
+                                    {{ task.priority }}
+                                </span>
+                                <span>{{ task.status }}</span>
+                            </div>
+                        </div>
+
+                        <form action="{{ url_for('delete_task', task_id=task.id) }}"
+                              method="POST"
+                              onsubmit="return confirm('Delete this task?')">
+                            <button class="delete-btn" type="submit"
+                                    aria-label="Delete task">×</button>
+                        </form>
+                    </article>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">✓</div>
+                        <h3>Your workspace is clear</h3>
+                        <p>Add your first task above to get started.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <aside class="panel side-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Environment</h3>
+                        <p>Application status</p>
+                    </div>
+                    <span class="status-dot"></span>
+                </div>
+
+                <div class="environment-item">
+                    <span class="env-icon">Py</span>
+                    <div><strong>Python / Flask</strong><p>Application backend</p></div>
+                    <span class="env-status">Active</span>
+                </div>
+                <div class="environment-item">
+                    <span class="env-icon docker-icon">D</span>
+                    <div><strong>Docker</strong><p>Container runtime</p></div>
+                    <span class="env-status">Active*</span>
+                </div>
+                <div class="environment-item">
+                    <span class="env-icon db-icon">DB</span>
+                    <div><strong>SQLite</strong><p>Task persistence</p></div>
+                    <span class="env-status">Ready</span>
+                </div>
+
+                <div class="tip-card">
+                    <span>DEVOPS TIP</span>
+                    <p>Small, frequent deployments make applications easier to test and maintain.</p>
+                </div>
+                <a class="health-link" href="/health" target="_blank">
+                    View health endpoint ↗
+                </a>
+            </aside>
+        </section>
+
+        <footer>DevFlow Project Manager <span>Built with Flask & Docker</span></footer>
+    </main>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
