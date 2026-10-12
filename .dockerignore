@@ -1,7 +1,10 @@
 
-__pycache__
-.venv
-venv
-.git
+venv/
+.venv/
+__pycache__/
+.pytest_cache/
+.git/
+.github/
 .env
-*.pyc
+.env.*
+!.env.example
